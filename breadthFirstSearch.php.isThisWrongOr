@@ -1,0 +1,111 @@
+<?php
+
+$searcher = new BreadthFirstSearcher(
+	new Queue([
+		'Artem' => [
+			'Slava',
+			'Katya',
+		],
+		'Dima' => [
+			'Artem',
+			'Katya',
+		],
+		'Lesha' => [
+			'Katya',
+			'Slava',
+			'Jack',
+		],
+		'Katya' => [
+			'Max',
+			'Slava',
+			'Lesha',
+		],
+		'Slava' => [
+			'Andrey',
+			'Max',
+			'Oleg',
+		],
+		'Andrey' => [
+			'Ashley',
+			'Artem',
+			'Jack',
+		],
+		'Jack' => [
+			'Steve',
+			'Olga',
+			'Kirill',
+		],
+		'Kirill' => [
+			'Kris',
+		],
+	])
+);
+
+$result = $searcher->search(
+	function($string) {
+		return $string == 'Kris';
+	});
+
+echo "<br>";
+echo 'Answer: ' . $result;
+
+class BreadthFirstSearcher
+{
+	private $queue;
+	private $checked = [];
+
+	public function __construct(Queue $queue)
+	{
+		$this->queue = $queue;
+	}
+
+	public function search($condition)
+	{
+		while (!empty($this->queue)) {
+			foreach ($this->queue->pop() as $entity) {
+				if (in_array($entity, $this->checked)) {
+					continue;
+				}
+				echo "$entity";
+				echo "<br>";
+				if ($condition($entity)) {
+					return $entity;
+				} else {
+					$this->queue->add($entity);
+					$this->addChecked($entity);
+				}
+			}
+		}
+
+		return null;
+	}
+
+	private function addChecked($entity)
+	{
+		$this->checked[] = $entity;
+	}
+}
+
+class Queue
+{
+	private $queue;
+
+	public function __construct(Array $queue)
+	{
+		$this->queue = $queue;
+	}
+
+	public function pop()
+	{
+		if (empty($this->queue)) {
+			return null;
+		}
+
+		return array_shift($this->queue);
+	}
+
+	public function add($entity)
+	{
+		$this->queue[] = $entity;
+	}
+}
